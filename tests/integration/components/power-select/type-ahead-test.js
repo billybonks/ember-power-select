@@ -7,8 +7,8 @@ import { charCode, namesStartingWithA } from '../constants';
 import { render, focus } from '@ember/test-helpers';
 
 const WITH_EPS_CLOSED = {
-  beforeInteraction(trigger, assert) {
-    focus(trigger);
+  async beforeInteraction(trigger, assert) {
+    await focus(trigger);
     assert.dom(trigger).hasText('', 'no value selected');
     assert.dom('.ember-power-select-dropdown').doesNotExist('The dropdown is closed');
   },
@@ -26,8 +26,8 @@ const WITH_EPS_CLOSED = {
 };
 
 const WITH_EPS_OPEN = {
-  beforeInteraction(trigger, assert) {
-    clickTrigger();
+  async beforeInteraction(trigger, assert) {
+    await clickTrigger();
     assert.dom('.ember-power-select-dropdown').exists('The dropdown is open');
   },
 
@@ -43,10 +43,11 @@ const WITH_EPS_OPEN = {
   }
 };
 
-function typeString(trigger, str, times = 1) {
+async function typeString(trigger, str, times = 1) {
   for (let j = 0; j < times; j++) {
+
     for (let i = 0; i < str.length; i++) {
-      triggerKeydown(trigger, charCode(str.charAt(i)));
+      await triggerKeydown(trigger, charCode(str.charAt(i)));
     }
   }
 }
@@ -64,8 +65,8 @@ module('Integration | Component | Ember Power Select (Type Ahead Native Behaviou
     `);
 
       let trigger = this.element.querySelector('.ember-power-select-trigger');
-      helpers.beforeInteraction(trigger, assert);
-      typeString(trigger, 'aaa');
+      await helpers.beforeInteraction(trigger, assert);
+      await typeString(trigger, 'aaa');
       helpers.checkSelectedValue(helpers.valueAt(this.names, 'aaa'.length), trigger, assert);
     });
 
@@ -78,9 +79,9 @@ module('Integration | Component | Ember Power Select (Type Ahead Native Behaviou
       `);
 
       let trigger = this.element.querySelector('.ember-power-select-trigger');
-      helpers.beforeInteraction(trigger, assert);
+      await helpers.beforeInteraction(trigger, assert);
       let { length } = namesStartingWithA;
-      typeString(trigger, 'a', length + 1);
+      await typeString(trigger, 'a', length + 1);
       helpers.checkSelectedValue(helpers.valueAt(this.names, length + 1), trigger, assert);
     });
 
@@ -93,10 +94,10 @@ module('Integration | Component | Ember Power Select (Type Ahead Native Behaviou
       `);
 
       let trigger = this.element.querySelector('.ember-power-select-trigger');
-      helpers.beforeInteraction(trigger, assert);
+      await helpers.beforeInteraction(trigger, assert);
       typeString(trigger, 'aa');
       helpers.checkSelectedValue(helpers.valueAt(this.names, 'aa'.length), trigger, assert);
-      typeString(trigger, 'r');
+      await typeString(trigger, 'r');
       helpers.checkSelectedValue('Aaran', trigger, assert);
       assert.notEqual('Aaran', helpers.valueAt(this.names, 'aar'.length), 'Aaran would not be selected unless aa was remembered');
     });
@@ -110,8 +111,8 @@ module('Integration | Component | Ember Power Select (Type Ahead Native Behaviou
       `);
 
       let trigger = this.element.querySelector('.ember-power-select-trigger');
-      helpers.beforeInteraction(trigger, assert);
-      typeString(trigger, 'aara');
+      await helpers.beforeInteraction(trigger, assert);
+      await typeString(trigger, 'aara');
       helpers.checkSelectedValue('Aaran', trigger, assert);
     });
 
@@ -126,14 +127,14 @@ module('Integration | Component | Ember Power Select (Type Ahead Native Behaviou
         {{/power-select}}
       `);
       let trigger = this.element.querySelector('.ember-power-select-trigger');
-      helpers.beforeInteraction(trigger, assert);
-      typeString(trigger, 'f', state === 'Open' ? 1 : 2); // Normalize open closed behaviour
+      await helpers.beforeInteraction(trigger, assert);
+      await typeString(trigger, 'f', state === 'Open' ? 1 : 2); // Normalize open closed behaviour
       helpers.checkSelectedValue('Fab', trigger, assert);
-      typeString(trigger, 'f', 2);
+      await typeString(trigger, 'f', 2);
       helpers.checkSelectedValue('Fba', trigger, assert);
-      typeString(trigger, 'f');
+      await typeString(trigger, 'f');
       helpers.checkSelectedValue('FFba', trigger, assert);
-      typeString(trigger, 'f');
+      await typeString(trigger, 'f');
       helpers.checkSelectedValue('Fbb', trigger, assert);
     });
   });
